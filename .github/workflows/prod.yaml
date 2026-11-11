@@ -1,37 +1,35 @@
-# Назва нашого workflow
 name: Production deploy
- 
-# Тригер для запуску workflow на push у гілку main
+
 on:
   push:
-    branches:
-      - main
- 
-# Список jobs
+    branches: [ "main" ]
+
 jobs:
   test-and-deploy-to-netlify:
     runs-on: ubuntu-latest
- 
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
- 
-    - name: Use Node.js 22.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: '22.x'
- 
-    - name: Install dependencies
-      run: yarn install
- 
-    - name: Run tests
-      run: yarn test
- 
-    - name: Netlify Deploy
-      uses: jsmrcaga/action-netlify-deploy@v2.0.0
-      with:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID:  ${{ secrets.NETLIFY_SITE_ID }}
-        build_directory: './dist'
-        install_command: yarn install
-        build_command: yarn build
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run tests
+        run: yarn test -- --watchAll=false
+
+      - name: Build project
+        run: npm run build
+
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@master
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          args: deploy --prod --dir=dist
