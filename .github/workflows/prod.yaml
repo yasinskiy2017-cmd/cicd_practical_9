@@ -1,9 +1,7 @@
 name: Production deploy
-
 on:
   push:
     branches: [ "main" ]
-
 jobs:
   test-and-deploy-to-netlify:
     runs-on: ubuntu-latest
